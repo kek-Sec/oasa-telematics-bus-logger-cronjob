@@ -8,8 +8,9 @@ import signal
 
 loop = asyncio.get_event_loop()
 client = aiohttp.ClientSession(loop=loop)
-LineCodesList = {}
-RouteCodesList = {}
+LineCodesList = {} #contains all available LineCodes
+RouteCodesList = {} #contains all corresponding RouteCodes to the LineCodesList
+BusesList = {}#contains all buses
 
 async def get_json(client, url):
     async with client.get(url) as response:
@@ -43,6 +44,20 @@ async def getRouteCodes(linesList,client):
             c+=1
     return to_return
 
+async def getBuses(routesList,client):
+    to_return = {}
+    c = 0
+    for i in range(len(routesList)):
+        x = routesList[i].split(',')
+        for route in x:
+            res = await get_json(client,"http://telematics.oasa.gr/api/?act=getBusLocation&p1=" + route)
+            items = json.loads(res)
+            for item in items:
+                to_return[c] = item
+                c+=1
+    return to_return
+
+
 def signal_handler(signal, frame):
     loop.stop()
     client.close()
@@ -55,6 +70,7 @@ async def init(client):
     print(LineCodesList)
     RouteCodesList = await getRouteCodes(LineCodesList,client)
     print(RouteCodesList)
+    BusesList = await getBuses(RouteCodesList,client)
 
 
 # 0- Entry point -0
