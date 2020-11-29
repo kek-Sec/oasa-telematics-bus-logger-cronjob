@@ -63,7 +63,15 @@ async def getBuses(routesList, client):
             )
             items = json.loads(res)
             for item in items:
-                to_return[c] = item["VEH_NO"]
+                f = open("buses/" + item["VEH_NO"], "a")
+                data = {
+                    "timestamp": item["CS_DATE"],
+                    "lat": item["CS_LAT"],
+                    "lng": item["CS_LNG"],
+                }
+                data_json = json.dumps(data, indent=4, sort_keys=True)
+                f.write(data_json)
+                f.close()
                 c += 1
     return to_return
 
