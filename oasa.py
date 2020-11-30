@@ -5,6 +5,9 @@ import asyncio
 import aiohttp
 import sys
 import signal
+import schedule
+import time
+import pathlib
 
 loop = asyncio.get_event_loop()
 client = aiohttp.ClientSession(loop=loop)
@@ -63,7 +66,8 @@ async def getBuses(routesList, client):
             )
             items = json.loads(res)
             for item in items:
-                f = open("buses/" + item["VEH_NO"], "a")
+                print("Located bus -> " + item["VEH_NO"])
+                f = open("root/oasa-scrape/buses/" + item["VEH_NO"], "a")
                 data = {
                     "timestamp": item["CS_DATE"],
                     "lat": item["CS_LAT"],
@@ -95,5 +99,9 @@ async def init(client):
 
 
 # 0- Entry point -0
-loop.run_until_complete(init(client))
-loop.close()
+
+#schedule.every(3).minutes.do(loop.run_forever())
+
+while 1:
+    loop.run_until_complete(init(client))
+    time.sleep(180)
